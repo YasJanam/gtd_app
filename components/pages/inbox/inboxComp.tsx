@@ -1,0 +1,448 @@
+'use client'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+import { useEffect, useState } from "react";
+import { Plus } from "flowbite-react-icons/outline";
+import InboxItemCard from "./inboxItemCard";
+//import api from "@/lib/api";
+import { toast } from "sonner";
+
+import { getCookie } from 'cookies-next';
+
+import DeleteModal from "@/components/commonComponents/deleteModal";
+
+import Image from "next/image";
+import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
+
+type InboxItemType = {
+    _id:string
+    title:string
+    description:string
+    user: string,
+    status:string,
+}
+
+
+const InboxComp = () => {
+    //const token = localStorage.getItem('access_token');
+    const [title,setTitle] = useState("");
+    const [description,setDescription] = useState("");
+    const [items,setItems] = useState<InboxItemType[]>([]);
+
+    const token = getCookie('access_token');
+    const [showDeleteModal,setShowDeleteModal] = useState(false);
+    const [deleteItemId,setDeleteItemId] = useState('');
+    //const TOKEN = localStorage.getItem('access_token');
+    const [showAddItemModal,setShowAddItemModal] = useState(false);
+
+
+    useEffect(() => {
+        getMyInbox();
+    },[])
+
+
+    const createInboxItem = async() => {
+        if(title === '') {
+            toast.error('title is none!');
+            return;
+        }
+
+        try{
+            await fetch(`${API_BASE_URL}/inbox/items`,{
+                method:'POST',
+                headers:{
+                    Authorization: `Bearer ${token}` ,
+                    'Content-Type': 'application/json',
+                },
+                    body: JSON.stringify({
+                    title:title,
+                    description:description,
+                    user: localStorage.getItem('user_id')
+                })
+            }).then(() => getMyInbox())
+        } catch {
+            toast.error('error in item creation')
+        }
+    }
+
+
+    const getMyInbox = async() => {
+        try{
+            const res = await fetch(`${API_BASE_URL}/inbox/user-items?status=inbox`,{
+              method:'GET',
+              headers:{
+                Authorization: `Bearer ${token}` ,
+                'Content-Type': 'application/json',
+              }
+            })
+
+            const resp = await res.json();
+            //console.log(resp)
+            setItems(resp)
+            
+        }catch {
+            console.log('fetching errors')
+        }
+    }
+
+
+    
+
+
+
+    return (<>
+       <div className="min-h-screen p-5 md:p-8">
+
+        {/* Header */}
+        <div className="
+            flex flex-col sm:flex-row
+            sm:items-center
+            justify-between
+            gap-4
+            mb-8
+        ">
+
+            <div>
+            <p className="text-sm font-medium text-purple-200 mb-1">
+                GTD • Capture
+            </p>
+
+            <h1 className="
+                text-4xl md:text-5xl
+                font-bold
+                tracking-tight
+                text-white
+            ">
+                Inbox
+            </h1>
+
+            <p className="mt-2 text-sm text-purple-100/70">
+                Capture everything before you decide what to do with it.
+            </p>
+            </div>
+
+            <Button
+            onClick={() => setShowAddItemModal(true)}
+            size="sm"
+            className="
+                self-start sm:self-auto
+                flex items-center gap-2
+                rounded-xl
+                bg-white
+                px-4 py-2.5
+                font-semibold
+                text-purple-700
+                shadow-lg
+                shadow-purple-950/20
+                transition-all duration-200
+                hover:-translate-y-0.5
+                hover:bg-purple-50
+                hover:shadow-xl
+            "
+            >
+            <Plus size={17} />
+            New Item
+            </Button>
+
+        </div>
+
+
+        {/* Inbox stats / decorative bar */}
+        <div className="
+            mb-7
+            flex flex-wrap
+            items-center
+            gap-3
+        ">
+
+            <div className="
+            rounded-xl
+            border border-white/10
+            bg-white/10
+            px-4 py-2
+            backdrop-blur-md
+            ">
+            <span className="text-xs text-purple-200">
+                Inbox items
+            </span>
+
+            <span className="ml-2 font-bold text-white">
+                {items?.length || 0}
+            </span>
+            </div>
+
+            <div className="
+            h-px
+            flex-1
+            bg-gradient-to-r
+            from-white/20
+            to-transparent
+            "/>
+
+        </div>
+
+
+        {/* Cards */}
+        <div className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-3
+            gap-5
+            pb-10
+        ">
+
+            {items && items.length > 0 ? (
+
+            items.map((item) => (
+
+                <InboxItemCard
+                key={item._id}
+                id={item._id}
+                title={item.title}
+                description={item.description}
+                status={item.status}
+                onDelete={() => {
+                    setDeleteItemId(item._id)
+                    setShowDeleteModal(true)
+                }}
+                />
+
+            ))
+
+            ) : (
+
+            /* Empty state */
+            <div className="
+                col-span-full
+                flex
+                min-h-[300px]
+                flex-col
+                items-center
+                justify-center
+                rounded-3xl
+                border
+                border-dashed
+                border-white/20
+                bg-white/5
+                text-center
+                backdrop-blur-sm
+            ">
+
+                <div className="
+                mb-4
+                flex h-16 w-16
+                items-center justify-center
+                rounded-2xl
+                bg-purple-500/20
+                text-3xl
+                ">
+                ✦
+                </div>
+
+                <h3 className="text-lg font-semibold text-white">
+                Your inbox is clear
+                </h3>
+
+                <p className="mt-2 max-w-sm text-sm text-purple-100/60">
+                Capture a thought, task or idea and decide what to do with it later.
+                </p>
+
+                <button
+                onClick={() => setShowAddItemModal(true)}
+                className="
+                    mt-5
+                    rounded-xl
+                    bg-purple-600
+                    px-4 py-2
+                    text-sm
+                    font-semibold
+                    text-white
+                    transition
+                    hover:bg-purple-500
+                "
+                >
+                + Add your first item
+                </button>
+
+            </div>
+
+            )}
+
+        </div>
+
+
+        {/* Delete Modal */}
+        <DeleteModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            url={`/inbox/items/${deleteItemId}`}
+            onSuccess={getMyInbox}
+        />
+
+
+        {/* Add Item Modal */}
+        <Modal
+            show={showAddItemModal}
+            onClose={() => setShowAddItemModal(false)}
+            dismissible
+        >
+
+            <ModalHeader>
+            <div className="flex items-center gap-2">
+                <div className="
+                flex h-8 w-8
+                items-center justify-center
+                rounded-lg
+                bg-purple-100
+                text-purple-600
+                ">
+                <Plus size={18} />
+                </div>
+
+                <div>
+                <p className="font-bold text-gray-800">
+                    New Inbox Item
+                </p>
+
+                <p className="text-xs font-normal text-gray-400">
+                    Capture it now. Clarify it later.
+                </p>
+                </div>
+            </div>
+            </ModalHeader>
+
+
+            <ModalBody>
+
+            <div className="space-y-5 pt-3">
+
+                {/* Title */}
+                <div>
+                <label className="
+                    mb-2 block
+                    text-sm font-semibold
+                    text-gray-700
+                ">
+                    Title
+                </label>
+
+                <input
+                    className="
+                    w-full
+                    rounded-xl
+                    border border-gray-200
+                    bg-gray-50
+                    px-4 py-3
+                    text-sm
+                    outline-none
+                    transition
+                    placeholder:text-gray-400
+                    focus:border-purple-400
+                    focus:bg-white
+                    focus:ring-4
+                    focus:ring-purple-100
+                    "
+                    placeholder="What is on your mind?"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+                </div>
+
+
+                {/* Description */}
+                <div>
+                <label className="
+                    mb-2 block
+                    text-sm font-semibold
+                    text-gray-700
+                ">
+                    Description
+                </label>
+
+                <textarea
+                    className="
+                    min-h-[130px]
+                    w-full
+                    resize-none
+                    rounded-xl
+                    border border-gray-200
+                    bg-gray-50
+                    px-4 py-3
+                    text-sm
+                    leading-6
+                    outline-none
+                    transition
+                    placeholder:text-gray-400
+                    focus:border-purple-400
+                    focus:bg-white
+                    focus:ring-4
+                    focus:ring-purple-100
+                    "
+                    placeholder="Add some details..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+                </div>
+
+
+                {/* Footer */}
+                <div className="
+                flex
+                justify-end
+                gap-2
+                border-t
+                border-gray-100
+                pt-4
+                ">
+
+                <button
+                    onClick={() => setShowAddItemModal(false)}
+                    className="
+                    rounded-xl
+                    px-4 py-2
+                    text-sm
+                    font-medium
+                    text-gray-500
+                    transition
+                    hover:bg-gray-100
+                    "
+                >
+                    Cancel
+                </button>
+
+                <button
+                    onClick={() => createInboxItem()}
+                    className="
+                    flex items-center gap-2
+                    rounded-xl
+                    bg-purple-600
+                    px-5 py-2
+                    text-sm
+                    font-semibold
+                    text-white
+                    shadow-md
+                    shadow-purple-200
+                    transition
+                    hover:bg-purple-700
+                    hover:shadow-lg
+                    "
+                >
+                    <Plus size={16} />
+                    Add Item
+                </button>
+
+                </div>
+
+            </div>
+
+            </ModalBody>
+
+        </Modal>
+
+        </div>
+    </>);
+}
+
+export default InboxComp;
