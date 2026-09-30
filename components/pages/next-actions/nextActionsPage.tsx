@@ -4,7 +4,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 import { useEffect, useState, useMemo } from "react";
 import { Plus } from "flowbite-react-icons/outline";
-import InboxItemCard from "./inboxItemCard";
 //import api from "@/lib/api";
 import { toast } from "sonner";
 
@@ -14,11 +13,11 @@ import DeleteModal from "@/components/commonComponents/deleteModal";
 
 import Image from "next/image";
 import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
-
+import NextActionCard from "./nextActionCard";
 import SearchComponent from "@/components/commonComponents/searchComponent";
 
 
-type InboxItemType = {
+type NextActionType = {
     _id:string
     title:string
     description:string
@@ -27,26 +26,26 @@ type InboxItemType = {
 }
 
 
-const InboxComp = () => {
+const NextActionComp = () => {
     //const token = localStorage.getItem('access_token');
     const [title,setTitle] = useState("");
     const [description,setDescription] = useState("");
-    const [items,setItems] = useState<InboxItemType[]>([]);
+    const [items,setItems] = useState<NextActionType[]>([]);
 
     const token = getCookie('access_token');
     const [showDeleteModal,setShowDeleteModal] = useState(false);
     const [deleteItemId,setDeleteItemId] = useState('');
     //const TOKEN = localStorage.getItem('access_token');
     const [showAddItemModal,setShowAddItemModal] = useState(false);
-
     const [searchTerm,setSearchTerm] = useState('');
 
+
     useEffect(() => {
-        getMyInbox();
+        getMyNextActions();
     },[])
 
 
-    const createInboxItem = async() => {
+    const createNextAction = async() => {
         if(title === '') {
             toast.error('title is none!');
             return;
@@ -62,18 +61,19 @@ const InboxComp = () => {
                     body: JSON.stringify({
                     title:title,
                     description:description,
-                    user: localStorage.getItem('user_id')
+                    user: localStorage.getItem('user_id'),
+                    status: 'next_action',
                 })
-            }).then(() => getMyInbox())
+            }).then(() => getMyNextActions())
         } catch {
             toast.error('error in item creation')
         }
     }
 
 
-    const getMyInbox = async() => {
+    const getMyNextActions = async() => {
         try{
-            const res = await fetch(`${API_BASE_URL}/inbox/user-items?status=inbox`,{
+            const res = await fetch(`${API_BASE_URL}/inbox/user-items?status=next_action`,{
               method:'GET',
               headers:{
                 Authorization: `Bearer ${token}` ,
@@ -102,7 +102,7 @@ const InboxComp = () => {
 
             return matchesSearch;
         });
-        }, [items, searchTerm]);
+    }, [items, searchTerm]);
 
 
 
@@ -129,7 +129,7 @@ const InboxComp = () => {
                 tracking-tight
                 text-white
             ">
-                Inbox
+                Next Actions
             </h1>
 
             <p className="mt-2 text-sm text-purple-100/70">
@@ -157,7 +157,7 @@ const InboxComp = () => {
             "
             >
             <Plus size={17} />
-            New Item
+            New Next Action
             </Button>
 
         </div>
@@ -185,7 +185,7 @@ const InboxComp = () => {
             backdrop-blur-md
             ">
             <span className="text-xs text-purple-200">
-                Inbox items
+                Next Actions
             </span>
 
             <span className="ml-2 font-bold text-white">
@@ -205,11 +205,15 @@ const InboxComp = () => {
 
 
         {/* Cards */}
+        {/*
+            sm:grid-cols-2
+            lg:grid-cols-3
+        */}
+
         <div className="
             grid
             grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-3
+            
             gap-5
             pb-10
         ">
@@ -218,7 +222,7 @@ const InboxComp = () => {
 
             filteredItems.map((item) => (
 
-                <InboxItemCard
+                <NextActionCard
                 key={item._id}
                 id={item._id}
                 title={item.title}
@@ -263,11 +267,11 @@ const InboxComp = () => {
                 </div>
 
                 <h3 className="text-lg font-semibold text-white">
-                Your inbox is clear
+                    Your next actions are clear.
                 </h3>
 
                 <p className="mt-2 max-w-sm text-sm text-purple-100/60">
-                Capture a thought, task or idea and decide what to do with it later.
+                See what needs to be done and take the very next step.
                 </p>
 
                 <button
@@ -299,7 +303,7 @@ const InboxComp = () => {
             show={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             url={`/inbox/items/${deleteItemId}`}
-            onSuccess={getMyInbox}
+            onSuccess={getMyNextActions}
         />
 
 
@@ -324,11 +328,11 @@ const InboxComp = () => {
 
                 <div>
                 <p className="font-bold text-gray-800">
-                    New Inbox Item
+                    New Next Action
                 </p>
 
                 <p className="text-xs font-normal text-gray-400">
-                    Capture it now. Clarify it later.
+                    Choose the next step. Take it.
                 </p>
                 </div>
             </div>
@@ -434,7 +438,7 @@ const InboxComp = () => {
                 </button>
 
                 <button
-                    onClick={() => createInboxItem()}
+                    onClick={() => createNextAction()}
                     className="
                     flex items-center gap-2
                     rounded-xl
@@ -466,4 +470,4 @@ const InboxComp = () => {
     </>);
 }
 
-export default InboxComp;
+export default NextActionComp;

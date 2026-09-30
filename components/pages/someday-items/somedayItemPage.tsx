@@ -4,7 +4,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 import { useEffect, useState, useMemo } from "react";
 import { Plus } from "flowbite-react-icons/outline";
-import InboxItemCard from "./inboxItemCard";
 //import api from "@/lib/api";
 import { toast } from "sonner";
 
@@ -14,66 +13,42 @@ import DeleteModal from "@/components/commonComponents/deleteModal";
 
 import Image from "next/image";
 import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
-
+import ReferenceCard from "./somedayItemCard";
 import SearchComponent from "@/components/commonComponents/searchComponent";
+import CreateSomedayItemModal from "./modals/createSomedayItemModal";
 
-
-type InboxItemType = {
+type ReferenceType = {
     _id:string
     title:string
     description:string
     user: string,
-    status:string,
 }
 
 
-const InboxComp = () => {
+const SomadayItemsComp = () => {
     //const token = localStorage.getItem('access_token');
     const [title,setTitle] = useState("");
     const [description,setDescription] = useState("");
-    const [items,setItems] = useState<InboxItemType[]>([]);
+    const [items,setItems] = useState<ReferenceType[]>([]);
 
     const token = getCookie('access_token');
     const [showDeleteModal,setShowDeleteModal] = useState(false);
     const [deleteItemId,setDeleteItemId] = useState('');
     //const TOKEN = localStorage.getItem('access_token');
     const [showAddItemModal,setShowAddItemModal] = useState(false);
-
     const [searchTerm,setSearchTerm] = useState('');
 
+
     useEffect(() => {
-        getMyInbox();
+        getMyReference();
     },[])
 
 
-    const createInboxItem = async() => {
-        if(title === '') {
-            toast.error('title is none!');
-            return;
-        }
 
+
+    const getMyReference = async() => {
         try{
-            await fetch(`${API_BASE_URL}/inbox/items`,{
-                method:'POST',
-                headers:{
-                    Authorization: `Bearer ${token}` ,
-                    'Content-Type': 'application/json',
-                },
-                    body: JSON.stringify({
-                    title:title,
-                    description:description,
-                    user: localStorage.getItem('user_id')
-                })
-            }).then(() => getMyInbox())
-        } catch {
-            toast.error('error in item creation')
-        }
-    }
-
-
-    const getMyInbox = async() => {
-        try{
-            const res = await fetch(`${API_BASE_URL}/inbox/user-items?status=inbox`,{
+            const res = await fetch(`${API_BASE_URL}/inbox/user-items?status=someday`,{
               method:'GET',
               headers:{
                 Authorization: `Bearer ${token}` ,
@@ -82,7 +57,6 @@ const InboxComp = () => {
             })
 
             const resp = await res.json();
-            //console.log(resp)
             
             setItems(resp)
             
@@ -90,6 +64,7 @@ const InboxComp = () => {
             console.log('fetching errors')
         }
     }
+
 
 
     const filteredItems = useMemo(() => {
@@ -102,7 +77,7 @@ const InboxComp = () => {
 
             return matchesSearch;
         });
-        }, [items, searchTerm]);
+    }, [items, searchTerm]);
 
 
 
@@ -129,7 +104,7 @@ const InboxComp = () => {
                 tracking-tight
                 text-white
             ">
-                Inbox
+                Someday
             </h1>
 
             <p className="mt-2 text-sm text-purple-100/70">
@@ -185,7 +160,7 @@ const InboxComp = () => {
             backdrop-blur-md
             ">
             <span className="text-xs text-purple-200">
-                Inbox items
+                References
             </span>
 
             <span className="ml-2 font-bold text-white">
@@ -205,11 +180,15 @@ const InboxComp = () => {
 
 
         {/* Cards */}
+        {/*
+            sm:grid-cols-2
+            lg:grid-cols-3
+        */}
+
         <div className="
             grid
             grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-3
+            
             gap-5
             pb-10
         ">
@@ -218,12 +197,11 @@ const InboxComp = () => {
 
             filteredItems.map((item) => (
 
-                <InboxItemCard
+                <ReferenceCard
                 key={item._id}
                 id={item._id}
                 title={item.title}
                 description={item.description}
-                status={item.status}
                 onDelete={() => {
                     setDeleteItemId(item._id)
                     setShowDeleteModal(true)
@@ -263,11 +241,11 @@ const InboxComp = () => {
                 </div>
 
                 <h3 className="text-lg font-semibold text-white">
-                Your inbox is clear
+                    Your somedays are clear.
                 </h3>
 
                 <p className="mt-2 max-w-sm text-sm text-purple-100/60">
-                Capture a thought, task or idea and decide what to do with it later.
+                See what needs to be done and take the very next step.
                 </p>
 
                 <button
@@ -299,171 +277,20 @@ const InboxComp = () => {
             show={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             url={`/inbox/items/${deleteItemId}`}
-            onSuccess={getMyInbox}
+            onSuccess={getMyReference}
         />
 
 
         {/* Add Item Modal */}
-        <Modal
-            show={showAddItemModal}
-            onClose={() => setShowAddItemModal(false)}
-            dismissible
-        >
+        <CreateSomedayItemModal
+        show={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        onSuccess={getMyReference}
+        />
 
-            <ModalHeader>
-            <div className="flex items-center gap-2">
-                <div className="
-                flex h-8 w-8
-                items-center justify-center
-                rounded-lg
-                bg-purple-100
-                text-purple-600
-                ">
-                <Plus size={18} />
-                </div>
-
-                <div>
-                <p className="font-bold text-gray-800">
-                    New Inbox Item
-                </p>
-
-                <p className="text-xs font-normal text-gray-400">
-                    Capture it now. Clarify it later.
-                </p>
-                </div>
-            </div>
-            </ModalHeader>
-
-
-            <ModalBody>
-
-            <div className="space-y-5 pt-3">
-
-                {/* Title */}
-                <div>
-                <label className="
-                    mb-2 block
-                    text-sm font-semibold
-                    text-gray-700
-                ">
-                    Title
-                </label>
-
-                <input
-                    className="
-                    w-full
-                    rounded-xl
-                    border border-gray-200
-                    bg-gray-50
-                    px-4 py-3
-                    text-sm
-                    outline-none
-                    transition
-                    placeholder:text-gray-400
-                    focus:border-purple-400
-                    focus:bg-white
-                    focus:ring-4
-                    focus:ring-purple-100
-                    "
-                    placeholder="What is on your mind?"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                </div>
-
-
-                {/* Description */}
-                <div>
-                <label className="
-                    mb-2 block
-                    text-sm font-semibold
-                    text-gray-700
-                ">
-                    Description
-                </label>
-
-                <textarea
-                    className="
-                    min-h-[130px]
-                    w-full
-                    resize-none
-                    rounded-xl
-                    border border-gray-200
-                    bg-gray-50
-                    px-4 py-3
-                    text-sm
-                    leading-6
-                    outline-none
-                    transition
-                    placeholder:text-gray-400
-                    focus:border-purple-400
-                    focus:bg-white
-                    focus:ring-4
-                    focus:ring-purple-100
-                    "
-                    placeholder="Add some details..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                </div>
-
-
-                {/* Footer */}
-                <div className="
-                flex
-                justify-end
-                gap-2
-                border-t
-                border-gray-100
-                pt-4
-                ">
-
-                <button
-                    onClick={() => setShowAddItemModal(false)}
-                    className="
-                    rounded-xl
-                    px-4 py-2
-                    text-sm
-                    font-medium
-                    text-gray-500
-                    transition
-                    hover:bg-gray-100
-                    "
-                >
-                    Cancel
-                </button>
-
-                <button
-                    onClick={() => createInboxItem()}
-                    className="
-                    flex items-center gap-2
-                    rounded-xl
-                    bg-purple-600
-                    px-5 py-2
-                    text-sm
-                    font-semibold
-                    text-white
-                    shadow-md
-                    shadow-purple-200
-                    transition
-                    hover:bg-purple-700
-                    hover:shadow-lg
-                    "
-                >
-                    <Plus size={16} />
-                    Add Item
-                </button>
-
-                </div>
-
-            </div>
-
-            </ModalBody>
-
-        </Modal>
 
         </div>
     </>);
 }
 
-export default InboxComp;
+export default SomadayItemsComp;

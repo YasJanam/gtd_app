@@ -5,12 +5,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 import ProjectCard from "./projectCard";
 //import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import DeleteModal from "@/components/commonComponents/deleteModal";
 import { getCookie } from 'cookies-next';
 import { Plus } from "flowbite-react-icons/outline";
-import { title } from "process";
-
+//import { title } from "process";
+import CreateProjectModal from "./modals/createProjectModal";
+import SearchComponent from "@/components/commonComponents/searchComponent";
 
 
 type InboxItemType = {
@@ -31,9 +32,8 @@ const ProjectComp = () => {
     const [deleteItemId,setDeleteItemId] = useState('');
     const [projs,setProjs] = useState<InboxItemType[]>([]);
     
-    const [name,setName] = useState("");
-    const [notes,setNotes] = useState("");
-
+    const [searchTerm,setSearchTerm] = useState('');
+    const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
     
     
 
@@ -64,7 +64,17 @@ const ProjectComp = () => {
 
 
 
+  const filteredItems = useMemo(() => {
+    const safeItems = Array.isArray(projs) ? projs : [];
 
+    return safeItems.filter((item) => {
+      const matchesSearch = item.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      return matchesSearch;
+    });
+  }, [projs, searchTerm]);
 
 
 
@@ -102,140 +112,41 @@ const ProjectComp = () => {
 
   </div>
 
+  <SearchComponent 
+  searchTerm={searchTerm} 
+  setSearchTerm={setSearchTerm} 
+  filteredItems={filteredItems}
+  />
+
 
   {/* Create Project */}
-  <div className="
-    mb-7
-    rounded-3xl
-    border border-white/10
-    bg-white/10
-    p-5
-    shadow-xl
-    shadow-purple-950/10
-    backdrop-blur-md
-  ">
-
-    <div className="
-      mb-4
-      flex items-center gap-3
-    ">
-
-      <div className="
-        flex h-10 w-10
-        items-center justify-center
-        rounded-xl
-        bg-purple-500/20
-        text-purple-200
-      ">
-        <Plus size={20} />
-      </div>
-
-      <div>
-        <h2 className="font-semibold text-white">
-          New Project
-        </h2>
-
-        <p className="text-xs text-purple-100/60">
-          Start a new project and define what you want to achieve.
-        </p>
-      </div>
-
-    </div>
-
-
-    <div className="
-      flex flex-col
-      md:flex-row
-      gap-3
-    ">
-
-      {/* Name */}
-      <input
-        className="
-          h-11
-          w-full
-          md:w-1/3
-          rounded-xl
-          border border-white/10
-          bg-white/10
-          px-4
-          text-sm
-          text-white
-          outline-none
-          placeholder:text-purple-100/40
-          transition
-          focus:border-purple-400/60
-          focus:bg-white/15
-          focus:ring-4
-          focus:ring-purple-500/10
-        "
-        placeholder="Project name..."
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-
-
-      {/* Notes */}
-      <textarea
-        className="
-          min-h-[44px]
-          h-11
-          w-full
-          flex-1
-          resize-none
-          rounded-xl
-          border border-white/10
-          bg-white/10
-          px-4
-          py-3
-          text-sm
-          leading-5
-          text-white
-          outline-none
-          placeholder:text-purple-100/40
-          transition
-          focus:border-purple-400/60
-          focus:bg-white/15
-          focus:ring-4
-          focus:ring-purple-500/10
-        "
-        placeholder="What is this project about?"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-
-
-      {/* Add button */}
-      <button
-        onClick={() => {}}
-        className="
-          flex
-          h-11
-          shrink-0
-          items-center
-          justify-center
-          gap-2
-          rounded-xl
-          bg-white
-          px-5
-          font-semibold
-          text-purple-700
-          shadow-lg
-          shadow-purple-950/20
-          transition-all
-          duration-200
-          hover:-translate-y-0.5
-          hover:bg-purple-50
-          hover:shadow-xl
-        "
-      >
-        <Plus size={17} />
-        Add
-      </button>
-
-    </div>
-
-  </div>
+ {/* New Project Button */}
+<div className="mb-7 flex justify-end">
+  <button
+    onClick={() => setShowCreateProjectModal(true)}
+    className="
+      flex
+      items-center
+      gap-2
+      rounded-xl
+      bg-white
+      px-4 py-2.5
+      text-sm
+      font-semibold
+      text-purple-700
+      shadow-lg
+      shadow-purple-950/20
+      transition-all
+      duration-200
+      hover:-translate-y-0.5
+      hover:bg-purple-50
+      hover:shadow-xl
+    "
+  >
+    <Plus size={17} />
+    New Project
+  </button>
+</div>
 
 
   {/* Projects stats */}
@@ -259,7 +170,7 @@ const ProjectComp = () => {
       </span>
 
       <span className="ml-2 font-bold text-white">
-        {projs?.length || 0}
+        {filteredItems?.length || 0}
       </span>
 
     </div>
@@ -288,7 +199,7 @@ const ProjectComp = () => {
 
     {projs && projs.length > 0 ? (
 
-      projs.map((p) => (
+      filteredItems.map((p) => (
 
         <ProjectCard
           key={p._id}
@@ -363,6 +274,13 @@ const ProjectComp = () => {
     url={`/inbox/items/${deleteItemId}`}
     onSuccess={getMyProjs}
   />
+
+
+    <CreateProjectModal
+    show={showCreateProjectModal}
+    onClose={() => setShowCreateProjectModal(false)}
+    />
+  
 
 </div>
 

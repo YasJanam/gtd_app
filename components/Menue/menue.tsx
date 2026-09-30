@@ -5,7 +5,7 @@ import React, { useState } from "react";
 
 import Image from "next/image";
 
-import { CalendarWeek, GridPlus, Play, Plus } from "flowbite-react-icons/outline";
+import { ArrowRight, CalendarWeek, GridPlus, Play, Plus } from "flowbite-react-icons/outline";
 import { Home } from "flowbite-react-icons/outline";
 import { Inbox } from "flowbite-react-icons/outline";
 import { Folder } from "flowbite-react-icons/outline";
@@ -15,10 +15,16 @@ import { CalendarIcon } from "flowbite-react";
 import { Book } from "flowbite-react-icons/outline";
 import { Clock } from "flowbite-react-icons/outline";
 
+import { useAppStore } from "../globalStore/providers/app-store-provider";
+import ForwardBackwardButton from "./LeftArrowButton";
+
 const Menue = ({children}:{children?:React.ReactNode}) => {
+    const menuePage = useAppStore((s) => s.menuePage);
+    const setMenuePage = useAppStore((s) => s.setMenuePage);
+
     const router = useRouter();
     const [showMore,setshowMore] = useState(false);
-    const [menuePage,setMenuePage] = useState(0);
+    //const [menuePage,setMenuePage] = useState(0);
     const ALL_ITEMS = 9;
     const PAGE_ITEMS_NUM = 4;
     const PAGE_NUM = Math.ceil(ALL_ITEMS / PAGE_ITEMS_NUM) ;
@@ -179,6 +185,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 
       {/* Inbox */}
       <MenueButton
+
         show={menuePage===0}
         onClick={() => router.push('/inbox')}
         icon={<Inbox size={20} />}
@@ -216,14 +223,14 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
         <MenueButton
           show={menuePage===1}
 
-          onClick={() => router.push('/next')}
+          onClick={() => router.push('/next-actions')}
           icon={<Play size={20} />}
           label="Next"
         />
 
         <MenueButton
           show={menuePage===1}
-          onClick={() => router.push('/calendar')}
+          onClick={() => router.push('/calendar-items')}
           icon={<CalendarWeek size={20} />}
           label="Calendar"
         />
@@ -237,19 +244,28 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 
         <MenueButton
           show={menuePage===2}
-          onClick={() => router.push('/mabe')}
+          onClick={() => router.push('/someday-items')}
           icon={<Clock size={20} />}
           label="Someday / Maybe"
         />
 
 
         {/* more  */}
-      <MenueButton
       
+      <MenueButton
+      show={menuePage===0}
         onClick={() => showMoreAction()}
         icon={<GridPlus size={20} />}
         label={"more"}
-      />
+      /> 
+      
+      
+      <ForwardBackwardButton
+        show={menuePage!==0}
+        onLeft={() => setMenuePage(menuePage-1)}
+        onRight={() => showMoreAction()}
+
+      /> 
 
     </nav>
 
