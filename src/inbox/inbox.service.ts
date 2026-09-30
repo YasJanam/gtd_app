@@ -36,14 +36,13 @@ export class InboxService {
     if(!user) {
       throw new BadRequestException()
     }
-
-    //console.log(user)
+    
 
     const createdItem = new this.inboxItemModel({
-      ...createInboxDto,user:(user as any)._id,status:GtdStatus.INBOX
+      ...createInboxDto,user:(user as any)._id,
     })
     const saved = await createdItem.save();
-    //console.log(saved)
+    console.log(saved)
     return saved;
   }
 

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, IsOptional, IsNumber, IsArray, } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional, IsNumber, IsArray, IsDate, } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -23,6 +23,14 @@ export class CreateInboxItemDto {
     @IsOptional()
     @IsNumber()
     estimatedMinutes: number
+
+    @IsOptional()
+    @IsString()
+    status?:string
+
+    @IsOptional()
+    @IsDate()
+    dueDate?: Date
 
 
     /*@IsOptional()

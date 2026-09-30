@@ -7,11 +7,15 @@ import { UsersModule } from './users/users.module';
 import { InboxModule } from './inbox/inbox.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AiModule } from './ai/ai.module';
-
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, 
+      envFilePath: '.env',
+    }),
     MongooseModule.forRoot('mongodb://localhost:27017/gtd-planning-v1-db1'),
     AuthModule,
     UsersModule,

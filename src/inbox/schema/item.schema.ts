@@ -18,11 +18,12 @@ export class InboxItem {
     @Prop({required:true,type:Types.ObjectId,ref:'User'})
     user : Types.ObjectId
 
-    @Prop({type:String,enum:GtdStatus,default:GtdStatus.INBOX})
+    @Prop({type:String,enum:Object.values(GtdStatus),default:'inbox'})
     status: string
 
     @Prop()
-    dueDate: Date  //for calendar
+    dueDate: Date  //for events
+
 
     @Prop()
     delegatedTo: string  // for waitingForPerson  

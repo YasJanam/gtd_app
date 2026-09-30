@@ -13,11 +13,11 @@ export class AiService {
     private structuredModel: any;
 
     constructor(private configService: ConfigService) {
-        
+        const apiKey = this.configService.getOrThrow<string>('GROQ_TOKEN');
         this.model = new ChatGroq({
             model: 'openai/gpt-oss-20b',
             temperature: 0.7,
-            apiKey:process.env.GROQ_API_KEY,
+            apiKey:apiKey,
            
             /*configuration: {
                 baseURL: 'https://api.groq.com/openai/v1',  

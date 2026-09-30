@@ -19,6 +19,8 @@ export class InboxController {
   @Post('items')
   @UseGuards(AuthGuard('jwt'))
   createItem(@Body() createInboxDto: CreateInboxItemDto) {
+    console.log("llddd")
+
     return this.inboxService.createItem(createInboxDto);
   }
 
