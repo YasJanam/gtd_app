@@ -243,7 +243,7 @@ const ProjectCard = ({id,name,notes,outcome,onDelete}:Probs) => {
 
 
             {/* Clarify */}
-            <button
+            {/*<button
             // onClick={() => router.push(`/inbox/clarify/${id}`)}
             className="
                 rounded-lg
@@ -259,7 +259,7 @@ const ProjectCard = ({id,name,notes,outcome,onDelete}:Probs) => {
             "
             >
             Clarify
-            </button>
+            </button>*/}
 
 
             {/* Actions */}

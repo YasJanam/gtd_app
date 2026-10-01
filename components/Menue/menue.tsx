@@ -5,7 +5,7 @@ import React, { useState } from "react";
 
 import Image from "next/image";
 
-import { ArrowRight, CalendarWeek, GridPlus, Play, Plus } from "flowbite-react-icons/outline";
+import { ArrowRight, CalendarWeek, GridPlus, Play, Plus, UserCircle } from "flowbite-react-icons/outline";
 import { Home } from "flowbite-react-icons/outline";
 import { Inbox } from "flowbite-react-icons/outline";
 import { Folder } from "flowbite-react-icons/outline";
@@ -247,6 +247,14 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
           onClick={() => router.push('/someday-items')}
           icon={<Clock size={20} />}
           label="Someday / Maybe"
+        />
+
+
+        <MenueButton
+          show={menuePage===2}
+          onClick={() => router.push('/waiting-for')}
+          icon={<UserCircle size={20} />}
+          label="Waiting For"
         />
 
 

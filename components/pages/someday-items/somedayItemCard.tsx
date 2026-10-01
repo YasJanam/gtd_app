@@ -1,5 +1,7 @@
 'use client'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,11 +12,15 @@ import {
     ArrowRight
 } from "flowbite-react-icons/outline";
 
+import { getCookie } from "cookies-next";
+
 type Probs = {
     id: string,
     title: string,
     description: string,
     onDelete: () => void,
+    refetch?:() => void,
+
 }
 
 const SomedayItemCard = ({
@@ -22,9 +28,12 @@ const SomedayItemCard = ({
     title,
     description,
     onDelete,
+    refetch,
 }: Probs) => {
 
     const router = useRouter();
+    const token = getCookie('access_token');
+    
 
     const [showAll, setShowAll] = useState(false);
 
@@ -76,6 +85,29 @@ const SomedayItemCard = ({
 
         }
     };
+
+
+    const onDone = async() => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${token}` ,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status:'done'
+                }),
+            });
+
+            if (response.ok) {
+                refetch? refetch():console.log('success')
+            }
+
+        } catch (error) {
+            console.error(error);
+        }        
+    }
 
 
     return (
@@ -313,7 +345,7 @@ const SomedayItemCard = ({
 
                     {/* Done */}
                     <button
-                        onClick={() => {}}
+                        onClick={onDone}
                         title="Done"
                         className="
                             flex

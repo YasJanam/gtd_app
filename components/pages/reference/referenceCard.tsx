@@ -21,6 +21,24 @@ type Probs = {
     onDelete: () => void,
 }
 
+const CopyIcon = ({ className = "h-3.5 w-3.5" }: { className?: string }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.8}
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 17.25v1.5A2.25 2.25 0 0 1 13.5 21h-7.5a2.25 2.25 0 0 1-2.25-2.25v-9.5A2.25 2.25 0 0 1 6 7h1.5m3.75-3.75h7.5A2.25 2.25 0 0 1 21 5.5v9.25a2.25 2.25 0 0 1-2.25 2.25h-7.5A2.25 2.25 0 0 1 9 14.75V5.5a2.25 2.25 0 0 1 2.25-2.25Z"
+        />
+    </svg>
+);
+
+
 const ReferenceCard = ({
     id,
     title,
@@ -36,6 +54,7 @@ const ReferenceCard = ({
         type: '',
         reason: ''
     });
+    const [copied, setCopied] = useState(false);
 
     const [aiLoading, setAiLoading] = useState(false);
 
@@ -78,6 +97,16 @@ const ReferenceCard = ({
         }
     };
 
+
+    const copyContent = async () => {
+        try {
+            await navigator.clipboard.writeText(description || title);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <div
@@ -271,7 +300,7 @@ const ReferenceCard = ({
             >
 
                 {/* Done */}
-                <button
+                {/*<button
                     onClick={() => {}}
                     title="Done"
                     className="
@@ -291,11 +320,11 @@ const ReferenceCard = ({
                     "
                 >
                     <Check size={14} />
-                </button>
+                </button>*/}
 
 
                 {/* Clarify / Edit */}
-                <button
+                {/*<button
                     onClick={() => router.push(`/inbox/clarify/${id}`)}
                     title="Edit"
                     className="
@@ -316,11 +345,11 @@ const ReferenceCard = ({
                     "
                 >
                     <Edit size={13} />
-                </button>
+                </button>*/}
 
 
                 {/* AI */}
-                <Button
+                {/*<Button
                     onClick={recommandItemTypeByAi}
                     size="xs"
                     disabled={aiLoading}
@@ -347,7 +376,25 @@ const ReferenceCard = ({
                         ? "..."
                         : <PaperClip size={14} />
                     }
-                </Button>
+                </Button>*/}
+
+
+                
+                <button
+                    onClick={copyContent}
+                    title={copied ? "Copied" : "Copy"}
+                    aria-label={copied ? "Copied" : "Copy"}
+                    className={`
+                        flex h-7 w-7 items-center justify-center rounded-md transition
+                        focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300
+                        ${copied
+                            ? "text-emerald-600"
+                            : "text-slate-400 hover:bg-sky-50 hover:text-sky-600"}
+                    `}
+                >
+                    {copied ? <Check size={14} /> : <CopyIcon />}
+                </button>
+                
 
 
                 {/* Delete */}

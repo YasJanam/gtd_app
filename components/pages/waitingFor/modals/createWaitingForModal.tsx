@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { getCookie } from "cookies-next";
 import { Modal, ModalBody, ModalHeader } from "flowbite-react";
+import { Clock } from "flowbite-react-icons/outline";
 import { toast } from "sonner";
-import { Plus } from "flowbite-react-icons/outline";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -23,14 +23,16 @@ const inputClass = `
 
 const labelClass = "mb-2 block text-sm font-semibold text-gray-700";
 
-const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
+const CreateWaitingForModal = ({ show, onClose, onSuccess }: Props) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [delegatedTo, setDelegatedTo] = useState("");
     const [loading, setLoading] = useState(false);
 
     const resetForm = () => {
         setTitle("");
         setDescription("");
+        setDelegatedTo("");
     };
 
     const handleClose = () => {
@@ -39,9 +41,14 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
         onClose();
     };
 
-    const createSomedayItem = async () => {
+    const createWaitingForItem = async () => {
         if (!title.trim()) {
-            toast.error("Add a title so you remember this idea.");
+            toast.error("Add a title so you remember what you're waiting for.");
+            return;
+        }
+
+        if (!delegatedTo.trim()) {
+            toast.error("Add who you're waiting for.");
             return;
         }
 
@@ -59,13 +66,14 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                     title: title.trim(),
                     description: description.trim(),
                     user: localStorage.getItem("user_id"),
-                    status: "someday",
+                    status: "waiting_for",
+                    delegatedTo: delegatedTo.trim(),
                 }),
             });
 
             if (!res.ok) throw new Error("Request failed");
 
-            toast.success("Added to Someday.");
+            toast.success("Added to Waiting For.");
             onSuccess();
             resetForm();
             onClose();
@@ -78,7 +86,12 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
     };
 
     return (
-        <Modal show={show} onClose={handleClose} dismissible>
+        <Modal
+            show={show}
+            onClose={handleClose}
+            dismissible
+            className="!items-center"
+        >
             <ModalHeader>
                 <div className="flex items-center gap-3">
                     <div
@@ -87,53 +100,70 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                             rounded-xl bg-purple-100 text-purple-600
                         "
                     >
-                        <Plus size={20} />
+                        <Clock size={20} />
                     </div>
 
                     <div>
                         <p className="text-base font-bold text-gray-800">
-                            New Someday Item
+                            New Waiting For
                         </p>
                         <p className="mt-0.5 text-xs font-normal text-gray-400">
-                            Park an idea for later. No pressure to act on it now.
+                            Track something someone else owes you.
                         </p>
                     </div>
                 </div>
             </ModalHeader>
 
-            <ModalBody>
+            <ModalBody className="overflow-visible">
                 <div className="space-y-5 pt-2">
 
                     {/* Title */}
                     <div>
-                        <label htmlFor="someday-title" className={labelClass}>
-                            Title
+                        <label htmlFor="wf-title" className={labelClass}>
+                            What are you waiting for?
                         </label>
                         <input
-                            id="someday-title"
+                            id="wf-title"
                             autoFocus
                             className={inputClass}
-                            placeholder="e.g. Learn piano, visit Japan"
+                            placeholder="e.g. Signed contract, design mockups"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") createSomedayItem();
+                                if (e.key === "Enter") createWaitingForItem();
+                            }}
+                        />
+                    </div>
+
+                    {/* Delegated to */}
+                    <div>
+                        <label htmlFor="wf-person" className={labelClass}>
+                            Who has it?
+                        </label>
+                        <input
+                            id="wf-person"
+                            className={inputClass}
+                            placeholder="Person or team"
+                            value={delegatedTo}
+                            onChange={(e) => setDelegatedTo(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") createWaitingForItem();
                             }}
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label htmlFor="someday-desc" className={labelClass}>
-                            Description
+                        <label htmlFor="wf-desc" className={labelClass}>
+                            Notes
                             <span className="ml-1 font-normal text-gray-400">
                                 (optional)
                             </span>
                         </label>
                         <textarea
-                            id="someday-desc"
-                            className={`${inputClass} min-h-[130px] resize-none leading-6`}
-                            placeholder="Why does it matter? What would it take?"
+                            id="wf-desc"
+                            className={`${inputClass} min-h-[100px] resize-none leading-6`}
+                            placeholder="When you asked, what was agreed, when to follow up..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
@@ -145,8 +175,9 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                             onClick={handleClose}
                             disabled={loading}
                             className="
-                                rounded-xl px-4 py-2 text-sm font-medium
-                                text-gray-500 transition hover:bg-gray-100
+                                rounded-xl px-4 py-2.5 text-sm font-medium
+                                text-gray-500 transition
+                                hover:bg-gray-100 hover:text-gray-700
                                 disabled:opacity-50
                             "
                         >
@@ -154,18 +185,19 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                         </button>
 
                         <button
-                            onClick={createSomedayItem}
+                            onClick={createWaitingForItem}
                             disabled={loading}
                             className="
                                 flex items-center gap-2 rounded-xl bg-purple-600
-                                px-5 py-2 text-sm font-semibold text-white
-                                shadow-md shadow-purple-200 transition
-                                hover:bg-purple-700 hover:shadow-lg
-                                disabled:opacity-60 disabled:shadow-none
+                                px-5 py-2.5 text-sm font-semibold text-white
+                                shadow-md shadow-purple-200
+                                transition-all duration-200
+                                hover:-translate-y-0.5 hover:bg-purple-700 hover:shadow-lg
+                                disabled:translate-y-0 disabled:opacity-60 disabled:shadow-none
                             "
                         >
-                            <Plus size={16} />
-                            {loading ? "Adding..." : "Add Item"}
+                            <Clock size={16} />
+                            {loading ? "Adding..." : "Add to Waiting For"}
                         </button>
                     </div>
 
@@ -175,4 +207,4 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
     );
 };
 
-export default CreateSomedayItemModal;
+export default CreateWaitingForModal;

@@ -23,7 +23,7 @@ const inputClass = `
 
 const labelClass = "mb-2 block text-sm font-semibold text-gray-700";
 
-const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
+const CreateNextActionModal = ({ show, onClose, onSuccess }: Props) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
@@ -39,9 +39,9 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
         onClose();
     };
 
-    const createSomedayItem = async () => {
+    const createNextAction = async () => {
         if (!title.trim()) {
-            toast.error("Add a title so you remember this idea.");
+            toast.error("Add a title so you know what to do.");
             return;
         }
 
@@ -59,13 +59,13 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                     title: title.trim(),
                     description: description.trim(),
                     user: localStorage.getItem("user_id"),
-                    status: "someday",
+                    status: "next_action",
                 }),
             });
 
             if (!res.ok) throw new Error("Request failed");
 
-            toast.success("Added to Someday.");
+            toast.success("Added to Next Actions.");
             onSuccess();
             resetForm();
             onClose();
@@ -92,10 +92,10 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
 
                     <div>
                         <p className="text-base font-bold text-gray-800">
-                            New Someday Item
+                            New Next Action
                         </p>
                         <p className="mt-0.5 text-xs font-normal text-gray-400">
-                            Park an idea for later. No pressure to act on it now.
+                            The very next physical step. Start with a verb.
                         </p>
                     </div>
                 </div>
@@ -106,34 +106,34 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
 
                     {/* Title */}
                     <div>
-                        <label htmlFor="someday-title" className={labelClass}>
-                            Title
+                        <label htmlFor="next-action-title" className={labelClass}>
+                            What's the next step?
                         </label>
                         <input
-                            id="someday-title"
+                            id="next-action-title"
                             autoFocus
                             className={inputClass}
-                            placeholder="e.g. Learn piano, visit Japan"
+                            placeholder="e.g. Call the bank about the card"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") createSomedayItem();
+                                if (e.key === "Enter") createNextAction();
                             }}
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label htmlFor="someday-desc" className={labelClass}>
+                        <label htmlFor="next-action-desc" className={labelClass}>
                             Description
                             <span className="ml-1 font-normal text-gray-400">
                                 (optional)
                             </span>
                         </label>
                         <textarea
-                            id="someday-desc"
+                            id="next-action-desc"
                             className={`${inputClass} min-h-[130px] resize-none leading-6`}
-                            placeholder="Why does it matter? What would it take?"
+                            placeholder="Details, phone numbers, links, what you need first..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
@@ -154,7 +154,7 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                         </button>
 
                         <button
-                            onClick={createSomedayItem}
+                            onClick={createNextAction}
                             disabled={loading}
                             className="
                                 flex items-center gap-2 rounded-xl bg-purple-600
@@ -165,7 +165,7 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
                             "
                         >
                             <Plus size={16} />
-                            {loading ? "Adding..." : "Add Item"}
+                            {loading ? "Adding..." : "Add Next Action"}
                         </button>
                     </div>
 
@@ -175,4 +175,4 @@ const CreateSomedayItemModal = ({ show, onClose, onSuccess }: Props) => {
     );
 };
 
-export default CreateSomedayItemModal;
+export default CreateNextActionModal;

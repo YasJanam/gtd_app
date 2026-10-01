@@ -1,5 +1,5 @@
 import { ArrowLeftIcon } from "flowbite-react"
-import { ArrowRight } from "flowbite-react-icons/outline"
+import { ArrowRight, CheckCircle, CirclePause, CirclePlus, CloseCircle, FileCirclePlus } from "flowbite-react-icons/outline"
 import React from "react"
 
 type Probs = {
@@ -33,7 +33,7 @@ const ForwardBackwardButton = ({show=true,onLeft,onRight}:Probs) => {
             "
             
         >
-            <div className="flex">
+            <div className="flex md:flex-col">
                 <div 
                 onClick={onLeft}
                 className="

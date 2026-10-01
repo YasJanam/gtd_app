@@ -1,56 +1,109 @@
 'use client'
 
-import { Button } from "flowbite-react";
 import { useState } from "react";
-import {
-    CalendarWeek,
-    Clock,
-    Check,
-    TrashBin,
-} from "flowbite-react-icons/outline";
+import { Check, Clock, TrashBin } from "flowbite-react-icons/outline";
+import { getCookie } from "cookies-next";
 
-type Probs = {
-    id: string,
-    title: string,
-    description: string,
-    status: string,
-    onDelete: () => void,
-    dueDate: Date | string,
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+type Props = {
+    id: string;
+    title: string;
+    description?: string;
+    status?: string;
+    dueDate?: Date | string;
+    onDelete: () => void;
+    refetch?: () => void;
+};
+
+type Recommendation = {
+    type: string;
+    reason: string;
+};
+
+type Tone = "overdue" | "today" | "soon" | "later";
+
+const DAY_MS = 86_400_000;
+
+const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+/* Colors are chosen by how close the date is */
+const TONES: Record<Tone, { tile: string; chip: string }> = {
+    overdue: {
+        tile: "bg-rose-50 text-rose-600 ring-rose-200",
+        chip: "bg-rose-50 text-rose-700 ring-rose-200",
+    },
+    today: {
+        tile: "bg-emerald-50 text-emerald-600 ring-emerald-200",
+        chip: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    },
+    soon: {
+        tile: "bg-purple-50 text-purple-600 ring-purple-200",
+        chip: "bg-purple-50 text-purple-700 ring-purple-200",
+    },
+    later: {
+        tile: "bg-slate-50 text-slate-500 ring-slate-200",
+        chip: "bg-slate-50 text-slate-600 ring-slate-200",
+    },
+};
+
+const getRelative = (date: Date): { label: string; tone: Tone } => {
+    const diff = Math.round((startOfDay(date) - startOfDay(new Date())) / DAY_MS);
+
+    if (diff < 0) {
+        const n = Math.abs(diff);
+        return { label: n === 1 ? "Yesterday" : `${n} days overdue`, tone: "overdue" };
+    }
+    if (diff === 0) return { label: "Today", tone: "today" };
+    if (diff === 1) return { label: "Tomorrow", tone: "soon" };
+    if (diff <= 7) {
+        return {
+            label: date.toLocaleDateString("en-US", { weekday: "long" }),
+            tone: "soon",
+        };
+    }
+    return { label: `In ${diff} days`, tone: "later" };
+};
 
 const CalendarItemCard = ({
     id,
     title,
     description,
+    dueDate,
+    refetch,
     onDelete,
-    dueDate
-}: Probs) => {
-
+}: Props) => {
     const [showAll, setShowAll] = useState(false);
-
-    const [recommandedType, setRecommandedType] = useState({
-        type: '',
-        reason: ''
-    });
-
+    const [doneLoading, setDoneLoading] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
+    const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
 
+    const isLong = (description?.length ?? 0) > 120;
 
-    const recommandItemTypeByAi = async () => {
+    /* Date */
+    const parsed = dueDate ? new Date(dueDate) : null;
+    const date = parsed && !isNaN(parsed.getTime()) ? parsed : null;
 
+    const relative = date ? getRelative(date) : null;
+    const tone = relative ? TONES[relative.tone] : null;
+
+    /* Items created with a date only are stored at 12:00, so don't show a fake time */
+    const hasRealTime =
+        !!date && !(date.getHours() === 12 && date.getMinutes() === 0);
+
+    const timeText = date
+        ? date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+        : "";
+
+    const recommendItemTypeByAi = async () => {
         try {
-
             setAiLoading(true);
 
             const response = await fetch('/api/ai/recommand-item-type', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title,
-                    description,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description }),
             });
 
             if (!response.ok) {
@@ -59,297 +112,241 @@ const CalendarItemCard = ({
             }
 
             const data = await response.json();
-
-            setRecommandedType({
-                type: data.type,
-                reason: data.reason
-            });
-
+            setRecommendation({ type: data.type, reason: data.reason });
         } catch (error) {
-
             console.error(error);
-
         } finally {
-
             setAiLoading(false);
-
         }
-
     };
 
+    const onDone = async () => {
+        try {
+            setDoneLoading(true);
+            const token = getCookie('access_token');
 
-    /* Date */
+            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: 'done' }),
+            });
 
-    const parsedDate = dueDate ? new Date(dueDate) : null;
-
-    const formattedDate = parsedDate
-        ? parsedDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-        })
-        : '';
-
-    const formattedTime = parsedDate
-        ? parsedDate.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-        })
-        : '';
-
+            if (response.ok) refetch?.();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setDoneLoading(false);
+        }
+    };
 
     return (
-
- <div
-    className="
-        group
-        relative
-        flex
-        items-center
-        gap-2.5
-        rounded-lg
-        border border-gray-100
-        bg-white
-        px-3
-        py-2
-        shadow-[0_1px_4px_rgba(88,28,135,0.03)]
-        transition-all
-        duration-200
-        hover:border-purple-200
-        hover:shadow-[0_3px_12px_rgba(88,28,135,0.06)]
-    "
->
-    {/* Accent */}
-    <div
-        className="
-            absolute
-            left-0
-            top-2
-            bottom-2
-            w-[2px]
-            rounded-full
-            bg-purple-300
-            transition
-            group-hover:bg-purple-500
-        "
-    />
-
-
-    {/* Done */}
-    <button
-        onClick={() => {}}
-        title="Done"
-        className="
-            ml-1
-            flex
-            h-6
-            w-6
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            border
-            border-gray-400
-            bg-gray-50
-            text-gray-500
-            transition
-            hover:border-emerald-200
-            hover:bg-emerald-50
-            hover:text-emerald-500
-        "
-    >
-        <Check size={13} />
-    </button>
-
-
-    {/* Content */}
-    <div className="min-w-0 flex-1">
-
-        {/* Title + Date */}
-        <div className="flex min-w-0 items-center gap-2">
-
-            <h4
+        <div
+            className="
+                group relative flex items-start gap-3.5
+                overflow-hidden rounded-2xl
+                border border-white/60 bg-white
+                p-3.5
+                shadow-[0_2px_10px_rgba(88,28,135,0.08)]
+                transition-all duration-300
+                hover:-translate-y-0.5
+                hover:shadow-[0_10px_30px_rgba(88,28,135,0.18)]
+            "
+        >
+            {/* Soft glow */}
+            <div
                 className="
-                    min-w-0
-                    truncate
-                    text-sm
-                    font-semibold
-                    text-gray-800
+                    pointer-events-none absolute -right-10 -top-10 h-28 w-28
+                    rounded-full bg-purple-200/40 blur-2xl
+                    opacity-0 transition-opacity duration-300
+                    group-hover:opacity-100
                 "
-            >
-                {title}
-            </h4>
+            />
 
-
-            {/* Date / Time */}
-            {parsedDate && (
+            {/* Date tile */}
+            {date && tone ? (
+                <div
+                    className={`
+                        relative flex h-12 w-12 shrink-0 flex-col items-center justify-center
+                        rounded-xl ring-1 ring-inset ${tone.tile}
+                    `}
+                >
+                    <span className="text-[10px] font-semibold uppercase leading-none tracking-wide">
+                        {date.toLocaleDateString("en-US", { month: "short" })}
+                    </span>
+                    <span className="mt-0.5 text-lg font-bold leading-none">
+                        {date.getDate()}
+                    </span>
+                </div>
+            ) : (
                 <div
                     className="
-                        flex
-                        shrink-0
-                        items-center
-                        gap-1
-                        rounded-md
-                        bg-purple-50
-                        px-1.5
-                        py-0.5
-                        text-purple-600
+                        relative flex h-12 w-12 shrink-0 items-center justify-center
+                        rounded-xl bg-gray-50 text-gray-300 ring-1 ring-inset ring-gray-200
                     "
                 >
-                    <CalendarWeek size={12} />
-
-                    <span className="text-xs font-medium whitespace-nowrap">
-                        {formattedDate}
-                    </span>
-
-                    <span className="text-purple-300">
-                        ·
-                    </span>
-
-                    <Clock size={11} />
-
-                    <span className="text-xs font-medium whitespace-nowrap">
-                        {formattedTime}
-                    </span>
+                    <Clock size={18} />
                 </div>
             )}
 
-        </div>
+            {/* Content */}
+            <div className="relative min-w-0 flex-1">
+                <h4 className="truncate text-[15px] font-semibold leading-6 text-gray-900">
+                    {title}
+                </h4>
 
-
-        {/* Description */}
-        {description && (
-            <div
-                onClick={() => setShowAll(!showAll)}
-                className="mt-0.5 cursor-pointer"
-            >
-
-                {showAll ? (
-
-                    <div
-                        className="
-                            rounded-md
-                            bg-purple-50/50
-                            px-2
-                            py-1
-                        "
-                    >
-                        <p className="text-xs leading-5 text-gray-600">
-                            {description}
-                        </p>
-
+                {/* Relative date + time */}
+                {relative && tone && (
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2">
                         <span
-                            className="
-                                text-[10px]
-                                font-medium
-                                text-purple-500
-                            "
+                            className={`
+                                rounded-full px-2 py-0.5 text-[11px] font-medium
+                                ring-1 ring-inset ${tone.chip}
+                            `}
                         >
-                            close
+                            {relative.label}
                         </span>
-                    </div>
 
-                ) : (
-
-                    <div className="flex items-center gap-1 min-w-0">
-
-                        <p
-                            className="
-                                min-w-0
-                                truncate
-                                text-xs
-                                leading-5
-                                text-gray-400
-                                transition
-                                group-hover:text-gray-500
-                            "
-                        >
-                            {description}
-                        </p>
-
-                        {description.length > 120 && (
-                            <span
-                                className="
-                                    shrink-0
-                                    text-[10px]
-                                    font-medium
-                                    text-purple-400
-                                "
-                            >
-                                more
+                        {hasRealTime && (
+                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                                <Clock size={12} className="text-gray-400" />
+                                {timeText}
                             </span>
                         )}
-
                     </div>
-
                 )}
 
+                {/* Description */}
+                {description && (
+                    <button
+                        type="button"
+                        onClick={() => setShowAll((v) => !v)}
+                        className="mt-2 block w-full text-left"
+                    >
+                        {showAll ? (
+                            <div className="rounded-xl bg-purple-50/70 px-3 py-2">
+                                <p className="whitespace-pre-wrap break-words text-[13px] leading-6 text-gray-600">
+                                    {description}
+                                </p>
+                                <span className="mt-1 inline-block text-[11px] font-medium text-purple-500">
+                                    Show less
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex min-w-0 items-center gap-1.5">
+                                <p className="min-w-0 truncate text-[13px] leading-6 text-gray-500">
+                                    {description}
+                                </p>
+                                {isLong && (
+                                    <span className="shrink-0 text-[11px] font-medium text-purple-500">
+                                        Show more
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </button>
+                )}
+
+                {/* AI recommendation */}
+                {recommendation && (
+                    <div
+                        className="
+                            mt-3 rounded-xl border border-purple-100
+                            bg-gradient-to-br from-purple-50 to-white
+                            px-3 py-2.5
+                        "
+                    >
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                                <span className="text-purple-500">✦</span>
+                                <span className="text-xs text-gray-500">Suggested type</span>
+                                <span className="rounded-full bg-purple-600 px-2.5 py-0.5 text-[11px] font-semibold text-white">
+                                    {recommendation.type}
+                                </span>
+                            </div>
+
+                            <button
+                                onClick={() => setRecommendation(null)}
+                                aria-label="Dismiss suggestion"
+                                className="
+                                    flex h-5 w-5 items-center justify-center rounded-full
+                                    text-xs text-purple-400 transition
+                                    hover:bg-purple-100 hover:text-purple-600
+                                "
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {recommendation.reason && (
+                            <p className="mt-1.5 text-xs leading-5 text-gray-600">
+                                {recommendation.reason}
+                            </p>
+                        )}
+                    </div>
+                )}
             </div>
-        )}
 
-    </div>
+            {/* Actions */}
+            <div className="relative flex shrink-0 flex-col items-end gap-1.5">
+                <button
+                    onClick={onDone}
+                    disabled={doneLoading}
+                    title="Mark as done"
+                    aria-label="Mark as done"
+                    className="
+                        flex h-8 items-center gap-1.5 rounded-full
+                        border border-gray-200 bg-white px-3
+                        text-xs font-semibold text-gray-500 transition
+                        hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600
+                        disabled:opacity-50
+                        focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300
+                    "
+                >
+                    <Check size={13} />
+                    {doneLoading ? "Saving..." : "Done"}
+                </button>
 
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={recommendItemTypeByAi}
+                        disabled={aiLoading}
+                        title="Suggest a type with AI"
+                        aria-label="Suggest a type with AI"
+                        className="
+                            flex h-8 w-8 items-center justify-center rounded-full
+                            bg-purple-50 text-purple-500 transition
+                            hover:bg-purple-100 hover:text-purple-700
+                            disabled:opacity-60
+                            focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-300
+                        "
+                    >
+                        {aiLoading ? (
+                            <span className="animate-pulse text-[10px]">...</span>
+                        ) : (
+                            "✦"
+                        )}
+                    </button>
 
-    {/* Actions */}
-    <div
-        className="
-            flex
-            shrink-0
-            items-center
-            gap-0.5
-        "
-    >
-
-        {/* Delete */}
-        <button
-            onClick={onDelete}
-            title="Delete"
-            className="
-                flex
-                h-7
-                w-7
-                items-center
-                justify-center
-                rounded-md
-                text-red-500
-                transition
-                hover:bg-red-50
-                hover:text-red-500
-            "
-        >
-            <TrashBin size={17} />
-        </button>
-
-
-        {/* AI */}
-        <button
-            onClick={recommandItemTypeByAi}
-            disabled={aiLoading}
-            title="AI"
-            className="
-                flex
-                h-7
-                w-7
-                items-center
-                justify-center
-                rounded-md
-                bg-purple-50
-                text-purple-500
-                transition
-                hover:bg-purple-100
-                hover:text-purple-600
-            "
-        >
-            {aiLoading ? (
-                <span className="text-[10px]">...</span>
-            ) : (
-                "✦"
-            )}
-        </button>
-
-    </div>
-
-</div>
+                    <button
+                        onClick={onDelete}
+                        title="Delete"
+                        aria-label="Delete"
+                        className="
+                            flex h-8 w-8 items-center justify-center rounded-full
+                            text-gray-300 transition
+                            hover:bg-red-50 hover:text-red-500
+                            focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300
+                        "
+                    >
+                        <TrashBin size={16} />
+                    </button>
+                </div>
+            </div>
+        </div>
     );
-}
+};
 
 export default CalendarItemCard;
