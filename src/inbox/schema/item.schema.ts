@@ -36,6 +36,9 @@ export class InboxItem {
 
     @Prop()     // for next action
     estimatedMinutes : number;
+
+    @Prop({required:false,default:false})
+    done: boolean;
     
 }
 

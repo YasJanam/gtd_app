@@ -20,6 +20,17 @@ type AINextActionType = {
 }
 
 
+type kindCountsType = {
+  inbox: number,
+  calendar: number,
+  next_action: number,
+  someday: number,
+  waiting_for: number,
+  reference: number,
+  project: number,
+}
+
+
 
 @Injectable()
 export class InboxService {
@@ -84,14 +95,13 @@ export class InboxService {
       userId: string,
       status?: string,
   ): Promise<InboxItem[]> {
-      // ====== ۱. اعتبارسنجی ======
       if (!Types.ObjectId.isValid(userId)) {
           throw new BadRequestException('Invalid user ID');
       }
 
-      // ====== ۲. ساخت کوئری ======
       const query: any = {
           user: new Types.ObjectId(userId),
+          done: false,
       };
 
       if (status) {
@@ -255,5 +265,59 @@ export class InboxService {
   }
 
   
+  async getItemsKindCount(userId:string) : Promise<kindCountsType> {
+    const user = await this.userService.findById(userId);
+    if(!user) {
+      throw new BadRequestException()
+    }
+
+    const items = await this.inboxItemModel.find({user:(user as any)._id,done:false});
+    const counts = {
+      inbox: items.filter((i) => i.status==='inbox').length,
+      calendar: items.filter((i) => i.status==='calendar').length,
+      next_action: items.filter((i) => i.status==='next_action').length,
+      someday: items.filter((i) => i.status==='someday').length,
+      waiting_for: items.filter((i) => i.status==='waiting_for').length,
+      reference: items.filter((i) => i.status==='reference').length,
+      project: items.filter((i) => i.status==='project').length,
+    };  
+
+    return (counts)
+  }
+
+
+  async getTodayItems(userId:string) : Promise<InboxItem[]> {
+    const user = await this.userService.findById(userId);
+    if(!user) {
+      throw new BadRequestException()
+    }
+    const isSameDay = (d1: Date, d2: Date) => {
+        return d1.getFullYear() === d2.getFullYear() &&
+              d1.getMonth() === d2.getMonth() &&
+              d1.getDate() === d2.getDate();
+    };
+    
+    const items = await this.inboxItemModel.find({user:(user as any)._id,done:false});
+
+    const todays = items
+        .filter((i) => i.status === 'calendar')
+        .filter((i) => i.dueDate && isSameDay(new Date(i.dueDate), new Date()));
+   
+        const nextActions = items.filter((i) => i.status==='next_action').slice(0,4);
+    return [...todays,...nextActions]
+
+  }
+
+
+  async doneItem(id:string) : Promise<InboxItem | null> {
+    const item = await this.inboxItemModel.findById(id);
+    if(!item) {
+      throw new NotFoundException();
+    }
+
+    item.done = true;
+    await item.save();
+    return item;
+  }
 
 }

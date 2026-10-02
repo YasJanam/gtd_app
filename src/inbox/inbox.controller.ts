@@ -44,6 +44,20 @@ export class InboxController {
   }
 
 
+  @Get('user-items/kind-count')
+  @UseGuards(AuthGuard('jwt'))
+  async findItemsKindCount(@Req() request:Request) {
+    const uid = (request as any).user?.uid;
+    return this.inboxService.getItemsKindCount(uid);
+  }
+
+  @Get('user-items/toady')
+  @UseGuards(AuthGuard('jwt'))
+  async findTodayUserItems(@Req() request:Request) {
+    const uid = (request as any).user?.uid;
+    return this.inboxService.getTodayItems(uid);
+  }
+
   @Get('project/items')
   @UseGuards(AuthGuard('jwt'))
   async findProjectActions(@Query('project') project:string) {
@@ -89,6 +103,13 @@ export class InboxController {
   @Post('items/:id/convert-to-project')
   async convertInboxItemToProject(@Param('id') id: string) {
     return this.inboxService.convertInboxItemToProject(id);
+  }
+
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('items/:id/done')
+  async doneItem(@Param('id') id: string) {
+    return this.inboxService.doneItem(id);
   }
   
 
