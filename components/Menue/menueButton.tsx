@@ -1,4 +1,5 @@
 import React from "react"
+import { useState, useEffect } from "react";
 
 type Probs = {
     show?:boolean
@@ -8,7 +9,17 @@ type Probs = {
 }
 
 const MenueButton = ({show=true,onClick,icon,label}:Probs) => {
-    return (show && <>
+
+    const [size, setSize] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        setSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
+    }, []);
+    
+    return ((show) && <>
           <button
             onClick={onClick}
             className="
@@ -28,7 +39,6 @@ const MenueButton = ({show=true,onClick,icon,label}:Probs) => {
             hover:text-white
             md:w-full
             "
-            
         >
 
             <div className="

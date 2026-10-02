@@ -55,7 +55,7 @@ const GtdProcess = ({id,itemTitle,itemDescription}:Probs) => {
             const response = await fetch(
                 `${API_BASE_URL}/inbox/items/${id}/change-status`,
                 {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
@@ -71,10 +71,12 @@ const GtdProcess = ({id,itemTitle,itemDescription}:Probs) => {
                 return;
             }
 
-            router.back();
+            
 
         } catch (error) {
             toast.error('Network error');
+        } finally {
+            router.back();
         }
     };
 

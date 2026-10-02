@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Image from "next/image";
 
@@ -18,7 +18,10 @@ import { Clock } from "flowbite-react-icons/outline";
 import { useAppStore } from "../globalStore/providers/app-store-provider";
 import ForwardBackwardButton from "./LeftArrowButton";
 
+import Background from "./background";
+
 const Menue = ({children}:{children?:React.ReactNode}) => {
+    const [size, setSize] = useState({ width: 0, height: 0 });
     const menuePage = useAppStore((s) => s.menuePage);
     const setMenuePage = useAppStore((s) => s.setMenuePage);
 
@@ -28,6 +31,8 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
     const ALL_ITEMS = 9;
     const PAGE_ITEMS_NUM = 4;
     const PAGE_NUM = Math.ceil(ALL_ITEMS / PAGE_ITEMS_NUM) ;
+
+
 
 
     const showMoreAction = () => {
@@ -46,7 +51,8 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 <div className="min-h-screen">
 
   {/* Background */}
-  <div className="fixed inset-0 -z-20">
+  <Background />
+  {/*<div className="fixed inset-0 -z-20">
 
     <Image
       src="/nightSky2.webp"
@@ -56,14 +62,13 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
       className="object-cover"
     />
 
-    {/* Dark overlay */}
     <div className="
       absolute
       inset-0
       bg-[#160b2b]/40
     " />
 
-  </div>
+  </div>*/}
 
 
   <div className="flex min-h-screen flex-col md:flex-row">
@@ -209,7 +214,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 
       {/* Projects */}
       <MenueButton
-      show={menuePage===0}
+      show={menuePage===0 }
 
         onClick={() => router.push('/projects')}
         icon={<Folder size={20} />}

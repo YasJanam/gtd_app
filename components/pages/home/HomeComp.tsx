@@ -21,7 +21,6 @@ import QuickCapture from "./quikCapture";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-/* ⚠️ اگر در بک‌اند هم دقیقاً "toady" نوشته‌ای باید همین بماند، وگرنه "today" کن */
 const TODAY_PATH = "/inbox/user-items/toady";
 
 type InboxItemType = {
@@ -131,7 +130,7 @@ const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-/* Decides the badge color and the short text shown on the right of each row */
+
 const describeItem = (item: InboxItemType): { kind: Kind; label: string } => {
     if (item.status !== "calendar") {
         return { kind: "next_action", label: "Next action" };
@@ -189,6 +188,8 @@ const GroupTitle = ({ title, subtitle }: { title: string; subtitle: string }) =>
     </div>
 );
 
+
+
 /* ---------- Page ---------- */
 
 const HomeComponent = () => {
@@ -197,7 +198,6 @@ const HomeComponent = () => {
     const [today, setToday] = useState<InboxItemType[]>([]);
     const [busyId, setBusyId] = useState<string | null>(null);
 
-    /* Set on the client only, so server and client HTML match */
     useEffect(() => {
         setNow(new Date());
     }, []);
@@ -229,7 +229,7 @@ const HomeComponent = () => {
     }, []);
 
 
-    const getMoreTodayItems = useCallback(async () => {
+    /*const getMoreTodayItems =async () => {
         try {
             const res = await authFetch(TODAY_PATH);
             if (!res.ok) throw new Error("Request failed");
@@ -240,7 +240,7 @@ const HomeComponent = () => {
             console.error(error);
             toast.error("Couldn't load today's items. Try again.");
         }
-    }, []);
+    };*/
 
     useEffect(() => {
         getKindCount();
@@ -255,7 +255,7 @@ const HomeComponent = () => {
                     title: text,
                     description: "",
                     user: localStorage.getItem("user_id"),
-                    status: "inbox", // ⚠️ با status واقعی Inbox در بک‌اند یکی کن
+                    status: "inbox", 
                 }),
             });
 
@@ -269,6 +269,7 @@ const HomeComponent = () => {
         }
     };
 
+
     const markDone = async (id: string) => {
         try {
             setBusyId(id);
@@ -276,7 +277,8 @@ const HomeComponent = () => {
             const res = await authFetch(`/inbox/items/${id}/done`, { method: "PATCH" });
             if (!res.ok) throw new Error("Request failed");
 
-            await Promise.all([getMoreTodayItems(), getKindCount()]);
+
+            await Promise.all([getTodayItems(), getKindCount()]);
         } catch (error) {
             console.error(error);
             toast.error("Couldn't mark that as done. Try again.");

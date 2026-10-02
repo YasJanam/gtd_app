@@ -64,7 +64,7 @@ const InboxComp = () => {
                     description:description,
                     user: localStorage.getItem('user_id')
                 })
-            }).then(() => getMyInbox())
+            }).then(() => {setShowAddItemModal(false);getMyInbox()})
         } catch {
             toast.error('error in item creation')
         }
