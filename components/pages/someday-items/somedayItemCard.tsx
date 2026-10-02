@@ -87,27 +87,24 @@ const SomedayItemCard = ({
     };
 
 
-    const onDone = async() => {
+    const onDone = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`, {
+            
+            const token = getCookie('access_token');
+
+            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/done`, {
                 method: 'PATCH',
                 headers: {
-                    Authorization: `Bearer ${token}` ,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    status:'done'
-                }),
             });
 
-            if (response.ok) {
-                refetch? refetch():console.log('success')
-            }
-
+            if (response.ok) refetch?.();
         } catch (error) {
             console.error(error);
-        }        
-    }
+        } 
+    };
 
 
     return (

@@ -28,7 +28,7 @@ const DAY_MS = 86_400_000;
 const startOfDay = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
-/* Colors are chosen by how close the date is */
+
 const TONES: Record<Tone, { tile: string; chip: string }> = {
     overdue: {
         tile: "bg-rose-50 text-rose-600 ring-rose-200",
@@ -48,6 +48,7 @@ const TONES: Record<Tone, { tile: string; chip: string }> = {
     },
 };
 
+
 const getRelative = (date: Date): { label: string; tone: Tone } => {
     const diff = Math.round((startOfDay(date) - startOfDay(new Date())) / DAY_MS);
 
@@ -65,6 +66,7 @@ const getRelative = (date: Date): { label: string; tone: Tone } => {
     }
     return { label: `In ${diff} days`, tone: "later" };
 };
+
 
 const CalendarItemCard = ({
     id,
@@ -125,13 +127,12 @@ const CalendarItemCard = ({
             setDoneLoading(true);
             const token = getCookie('access_token');
 
-            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`, {
+            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/done`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status: 'done' }),
             });
 
             if (response.ok) refetch?.();

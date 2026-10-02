@@ -65,13 +65,12 @@ const WaitingForCard = ({
             setDoneLoading(true);
             const token = getCookie('access_token');
 
-            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`, {
+            const response = await fetch(`${API_BASE_URL}/inbox/items/${id}/done`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status: 'done' }),
             });
 
             if (response.ok) refetch?.();

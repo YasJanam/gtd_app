@@ -48,24 +48,35 @@ const GtdProcess = ({id,itemTitle,itemDescription}:Probs) => {
         setShowMessageModal(true);
         setMessage('Now do that !')
     }
+    
 
+    const changeStatus = async (status: string) => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/inbox/items/${id}/change-status`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status }),
+                }
+            );
 
-    const changeStatus = async(str:string) => {
-        try{
-            await fetch(`${API_BASE_URL}/inbox/items/${id}/change-status`,{
-                method:'POST',
-                headers:{
-                    Authorization: `Bearer ${token}` ,
-                    'Content-Type': 'application/json',
-                },
-                    body: JSON.stringify({
-                    status:str
-                })
-            }).then(() => {router.back()})
-        } catch {
-            toast.error('error in item creation')
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+
+                toast.error(errorData.message || 'Failed to change item status');
+                return;
+            }
+
+            router.back();
+
+        } catch (error) {
+            toast.error('Network error');
         }
-    }
+    };
 
     
     const convertInboxItemToCalendarItem = async() => {
@@ -159,94 +170,6 @@ const GtdProcess = ({id,itemTitle,itemDescription}:Probs) => {
     return (<>
 
         
-
-        {/*<GtdCommonModal 
-        show={showActionable}
-        onClose={() => setShowActionsble(false)}
-        title ={'actionable'}
-        text = {'is it actionable'}
-        icon = {<BellActive/>}
-        yesAction={() => {setShowActionsble(false);setShowActionsCount(true)}}
-        noAction={() => {setShowActionsble(false);setShowMaybe(true)}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-
-        />
-
-
-        <GtdCommonModal 
-        show={showActionsCount}
-        onClose={() => setShowActionsCount(false)}
-        title ={'action count'}
-        text = {'Does it have several actions?'}
-        icon = {<BellActive/>}
-        yesAction={() => {setShowActionsble(false);createProject()}}
-        noAction={() => {setShowActionsble(false);setShowLessThan2Min(true)}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />
-
-
-        <GtdCommonModal 
-        show={showLessThan2Min}
-        onClose={() => setShowLessThan2Min(false)}
-        title ={'less than 2 minutes'}
-        text = {'Does it take less than 2 minutes ?'}
-        icon = {<Clock/>}
-        yesAction={() => {setShowLessThan2Min(false);nowDoIt();}}
-        noAction={() => {setShowLessThan2Min(false);setShowDoByMyself(true)}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />
-
-        <GtdCommonModal
-        show={showDoByMyself}
-        onClose={() => setShowDoByMyself(false)}
-        title ={'do by myself'}
-        text = {'Do I have to do it myself ?'}
-        icon = {<PersonChalkboard/>}
-        yesAction={() => {setShowDoByMyself(false);setShowCalendarItem(true);}}
-        noAction={() => {setShowDoByMyself(false);createWaitingFor();}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />
-
-        <GtdCommonModal
-        show={showCalendarItem}
-        onClose={() => setShowCalendarItem(false)}
-        title ={'calendar item'}
-        text = {'Does it have a specific date ?'}
-        icon = {<CalendarWeek/>}
-        yesAction={() => {setShowCalendarItem(false);createCalendarItem();}}
-        noAction={() => {setShowCalendarItem(false);createNextAction();}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />
-
-        <GtdCommonModal
-        show={showMaybe}
-        onClose={() => setShowMaybe(false)}
-        title ={'someday/maybe'}
-        text = {"Is it possible that someday I'll do it?"}
-        icon = {<TruckClock/>}
-        yesAction={() => {setShowMaybe(false);createSomedayItem();}}
-        noAction={() => {setShowMaybe(false);setShowImportance(true);}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />
-
-        <GtdCommonModal
-        show={showImportance}
-        onClose={() => setShowImportance(false)}
-        title ={'refrence / trash'}
-        text = {"Does it matter ? "}
-        icon = {<TrashBin/>}
-        yesAction={() => {setShowImportance(false);createReference();}}
-        noAction={() => {setShowImportance(false);goToTrash();}}
-        itemTitle={itemTitle}
-        itemDescription={itemDescription}
-        />*/}
-
 
         <GtdCommonModal
         show={showActionable}
