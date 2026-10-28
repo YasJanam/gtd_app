@@ -8,8 +8,8 @@ import { User, UserDocument } from 'src/users/schema/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { Types } from 'mongoose';
 import { GtdStatus } from './enums/gtdStatuses.enum';
-import { ProjectsService } from 'src/projects/projects.service';
-import { Project } from 'src/projects/schema/project.schema';
+import { ProjectsService } from 'src/gtd-app/projects/projects.service';
+import { Project } from 'src/gtd-app/projects/schema/project.schema';
 
 
 type AINextActionType = {

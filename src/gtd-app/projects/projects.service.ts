@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Project, ProjectDocument } from './schema/project.schema';
 import { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
-import { InboxService } from 'src/inbox/inbox.service';
+import { InboxService } from 'src/gtd-app/inbox/inbox.service';
 import { Types } from 'mongoose';
 
 @Injectable()

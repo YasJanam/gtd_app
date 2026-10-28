@@ -4,8 +4,8 @@ import { InboxController } from './inbox.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { InboxItem, InboxItemSchema } from './schema/item.schema';
 import { UsersModule } from 'src/users/users.module';
-import { ProjectsModule } from 'src/projects/projects.module';
-import { ProjectsService } from 'src/projects/projects.service';
+import { ProjectsModule } from 'src/gtd-app/projects/projects.module';
+import { ProjectsService } from 'src/gtd-app/projects/projects.service';
 
 
 @Module({
