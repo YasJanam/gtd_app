@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AiController } from './ai.controller';
-import { AiService } from './ai.service';
+import { AiService } from './service/ai.service';
 
 @Module({
     imports: [ConfigModule],
@@ -10,4 +10,4 @@ import { AiService } from './ai.service';
     providers: [AiService],
     exports: [AiService],
 })
-export class AiModule {}
+export class ChildAiModule {}

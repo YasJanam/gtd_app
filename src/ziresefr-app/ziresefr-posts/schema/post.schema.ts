@@ -29,10 +29,9 @@ export class Post {
 
     @Prop({type:[String]})
     categories : string[]
-    
 
     @Prop()
-    wp_page_url: string
+    wp_url: string
 }
 
 

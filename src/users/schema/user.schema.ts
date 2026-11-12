@@ -30,14 +30,17 @@ export class User {
     @Prop()
     wp_id : number
 
-    @Prop()
-    wp_email: string
+    //@Prop()
+    //wp_email: string
 
-    @Prop()
+    //@Prop()
+    //wp_username: string
+
+    /*@Prop()
     wp_nickname: string
 
     @Prop()
-    wp_phone: string
+    wp_phone: string*/
     // ========================
 
     @Prop()
@@ -52,11 +55,20 @@ export class User {
     @Prop()
     country: string
 
-    //@Prop()
-    //description : string
 
     @Prop({type:String, enum:Object.values(Role), default:'common_user'})
     role: string
+
+    @Prop()
+    mainGoal: string;
+
+
+    @Prop()
+    aboutMe: string
+
+    @Prop()
+    job: string
+
 
     
 }

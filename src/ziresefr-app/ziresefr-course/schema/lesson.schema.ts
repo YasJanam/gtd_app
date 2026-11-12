@@ -25,8 +25,8 @@ export class Lesson {
     @Prop()
     course_id: number
 
-    @Prop()
-    url: string
+    @Prop({required:false})
+    wp_url: string
 
     @Prop()
     order: string

@@ -1,7 +1,7 @@
 // src/ai/ai.controller.ts
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AiService } from './ai.service';
+import { AiService } from './service/ai.service';
 import { GenerateActionsDto } from './dto/generate-action.dto';
 
 @Controller('ai')

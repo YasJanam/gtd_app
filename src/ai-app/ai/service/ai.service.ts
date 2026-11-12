@@ -3,7 +3,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { ConfigService } from '@nestjs/config';
-import { nextActionSchema, NextActionOutput } from './schemas/next-action.schema';
+import { nextActionSchema, NextActionOutput } from '../schemas/next-action.schema';
 import { ChatGroq } from '@langchain/groq';
 
 

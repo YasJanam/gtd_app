@@ -28,7 +28,7 @@ export class Product {
     type: string
 
     @Prop()
-    permalink: string    
+    wp_url: string    
 
     @Prop({type: [String]})
     categories: String[]

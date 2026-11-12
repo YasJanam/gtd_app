@@ -3,6 +3,8 @@ import { ZiresefrConnectionModule } from './ziresefr_connection/ziresefr_connect
 import { ZiresefrCourseModule } from './ziresefr-course/ziresefr-course.module';
 import { ZiresefrPostsModule } from './ziresefr-posts/ziresefr-posts.module';
 import { ZiresefrProductsModule } from './ziresefr-products/ziresefr-products.module';
+import { ZiresefrUserModule } from './ziresefr-user/ziresefr-user.module';
+import { ParticipantModule } from './participant/participant.module';
 
 @Module({
   imports: [
@@ -10,6 +12,8 @@ import { ZiresefrProductsModule } from './ziresefr-products/ziresefr-products.mo
     ZiresefrCourseModule,
     ZiresefrPostsModule,
     ZiresefrProductsModule,
+    ZiresefrUserModule,
+    ParticipantModule,
   ],
 })
 export class ZiresefrModule {}

@@ -1,26 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { CreateZiresefrPostDto } from './dto/create-ziresefr-post.dto';
 import { UpdateZiresefrPostDto } from './dto/update-ziresefr-post.dto';
+import { Post, PostDocument } from './schema/post.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+
+
 
 @Injectable()
 export class ZiresefrPostsService {
-  create(createZiresefrPostDto: CreateZiresefrPostDto) {
-    return 'This action adds a new ziresefrPost';
-  }
+  constructor(
+      @InjectModel(Post.name) private dbModel: Model<PostDocument>,
+    ) {}
 
-  findAll() {
-    return `This action returns all ziresefrPosts`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ziresefrPost`;
-  }
+   async create(dto: CreateZiresefrPostDto) : Promise<Post | null> {
+      const nw = new this.dbModel(dto);
+      const saved = await nw.save();
+      return saved;
+    }
+  
+    async createMany(body: CreateZiresefrPostDto[]): Promise<Number> {
+      const nws = await this.dbModel.insertMany(body);
+      return nws.length;
+    }
 
-  update(id: number, updateZiresefrPostDto: UpdateZiresefrPostDto) {
-    return `This action updates a #${id} ziresefrPost`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} ziresefrPost`;
-  }
+    async findAll(): Promise<Post[]> {
+      const posts = await this.dbModel.find();
+      return posts;
+    }
 }

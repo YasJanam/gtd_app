@@ -1,26 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateZiresefrProductDto } from './dto/create-ziresefr-product.dto';
 import { UpdateZiresefrProductDto } from './dto/update-ziresefr-product.dto';
+import { Product, ProductDocument } from './schema/product.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ZiresefrProductsService {
-  create(createZiresefrProductDto: CreateZiresefrProductDto) {
-    return 'This action adds a new ziresefrProduct';
-  }
+  constructor(
+      @InjectModel(Product.name) private dbModel: Model<ProductDocument>,
+    ) {}
 
-  findAll() {
-    return `This action returns all ziresefrProducts`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ziresefrProduct`;
-  }
+    async create(dto: CreateZiresefrProductDto) : Promise<Product | null> {
+      const nw = new this.dbModel(dto);
+      const saved = await nw.save();
+      return saved;
+    }
+  
+    async createMany(body: CreateZiresefrProductDto[]): Promise<Number> {
+      const nws = await this.dbModel.insertMany(body);
+      return nws.length;
+    }
 
-  update(id: number, updateZiresefrProductDto: UpdateZiresefrProductDto) {
-    return `This action updates a #${id} ziresefrProduct`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} ziresefrProduct`;
-  }
+
+    async findAll() : Promise<Product[]> {
+      const products = await this.dbModel.find();
+      return products
+    }
 }

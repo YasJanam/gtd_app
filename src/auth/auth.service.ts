@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "src/users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcryptjs';
+import { WpRegisterDto } from "./dto/wp-register.dto";
 
+import * as nodeCrypto from 'crypto';
 
 export interface LoginResponse {
     token: string
@@ -38,5 +40,24 @@ export class AuthService {
         console.log(token)
 
         return { token:token, username:username, uid:userId,}
+    }
+
+    async registerFromWp(dto:WpRegisterDto) : Promise<{username:string,uid:string}> {
+        const user = await this.userService.findByEmail(dto.username);
+        if(user) {
+            throw new BadRequestException('user already exist')
+        }
+
+        const randomPassword = nodeCrypto.randomBytes(16).toString('hex');
+        const hashed = await bcrypt.hash(randomPassword, 10);
+        let createdUser = await this.userService.create({
+            email: dto.email,
+            username: dto.username,
+            password: hashed,
+            first_name: dto.first_name,
+            last_name: dto.last_name,
+        });
+
+        return {username:dto.username , uid:(createdUser as any)._id}
     }
 }
