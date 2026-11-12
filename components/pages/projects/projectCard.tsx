@@ -264,7 +264,7 @@ const ProjectCard = ({id,name,notes,outcome,onDelete}:Probs) => {
 
             {/* Actions */}
             <button
-            onClick={() => router.push(`/projects/${id}/actions`)}
+            onClick={() => router.push(`/gtd/projects/${id}/actions`)}
             className="
                 rounded-lg
                 border border-purple-200

@@ -61,7 +61,7 @@ const LoginComponent = () => {
             toast.success('Welcome back! 🎉')
 
             setTimeout(() => {
-                router.push('/home')
+                router.push('/gtd/home')
             }, 500)
 
         } catch (err: any) {

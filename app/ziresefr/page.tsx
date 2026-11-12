@@ -1,4 +1,4 @@
-import Test from "@/components/ziresefr_components/test_comp";
+import Test from "@/ziresefr_components/test_comp";
 
 
 export default async function TestComp() {

@@ -167,7 +167,7 @@ const InboxItemCard = ({id,title,description,onDelete,status}:Probs) => {
 
             {/* Clarify */}
             <button
-            onClick={() => router.push(`/inbox/clarify/${id}`)}
+            onClick={() => router.push(`/gtd/inbox/clarify/${id}`)}
             className="
                 rounded-lg
                 bg-purple-600

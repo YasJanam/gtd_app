@@ -39,15 +39,15 @@ const ProjectMenue = ({children,name}:{children?:React.ReactNode,name:string}) =
             
             ">
             <h1 className="font-bold text-[25]">name</h1>
-            <div className="p-1" onClick={() => router.push('/home')}>
+            <div className="p-1" onClick={() => router.push('/gtd/home')}>
                 <button className="hover:text-yellow-500 font-bold">next actions</button>
             </div>
             
-            <div className="p-1" onClick={() => router.push('/home')}>
+            <div className="p-1" onClick={() => router.push('/gtd/home')}>
                 <button className="hover:text-yellow-500 font-bold">add action</button>
             </div>
 
-            <div className="p-1" onClick={() => router.push('/inbox')}>
+            <div className="p-1" onClick={() => router.push('/gtd/inbox')}>
                 <button className="hover:text-yellow-500 font-bold">ai</button>
             </div>
 

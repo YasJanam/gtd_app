@@ -98,21 +98,21 @@ const INBOX: Section = {
     key: "inbox",
     name: "Inbox",
     hint: "Everything you captured and haven't decided on yet.",
-    href: "/inbox",
+    href: "/gtd/inbox",
     icon: <Inbox size={26} />,
     tone: TONES.purple,
 };
 
 const DO_SECTIONS: Section[] = [
-    { key: "next_action", name: "Next Actions", hint: "Steps you can take right now.", href: "/next-actions", icon: <Play size={20} />, tone: TONES.blue },
-    { key: "calendar", name: "Calendar", hint: "Things tied to a specific day.", href: "/calendar-items", icon: <CalendarWeek size={20} />, tone: TONES.emerald },
-    { key: "waiting_for", name: "Waiting For", hint: "Handed off, still to follow up.", href: "/waiting-for", icon: <Hourglass size={20} />, tone: TONES.amber },
+    { key: "next_action", name: "Next Actions", hint: "Steps you can take right now.", href: "/gtd/next-actions", icon: <Play size={20} />, tone: TONES.blue },
+    { key: "calendar", name: "Calendar", hint: "Things tied to a specific day.", href: "/gtd/calendar-items", icon: <CalendarWeek size={20} />, tone: TONES.emerald },
+    { key: "waiting_for", name: "Waiting For", hint: "Handed off, still to follow up.", href: "/gtd/waiting-for", icon: <Hourglass size={20} />, tone: TONES.amber },
 ];
 
 const KEEP_SECTIONS: Section[] = [
-    { key: "project", name: "Projects", hint: "Outcomes that need more than one step.", href: "/projects", icon: <Folder size={20} />, tone: TONES.indigo },
-    { key: "someday", name: "Someday / Maybe", hint: "Ideas worth keeping, not doing yet.", href: "/someday", icon: <QuestionCircle size={20} />, tone: TONES.rose },
-    { key: "reference", name: "Reference", hint: "Information to keep and find later.", href: "/reference", icon: <BookOpen size={20} />, tone: TONES.purple },
+    { key: "project", name: "Projects", hint: "Outcomes that need more than one step.", href: "/gtd/projects", icon: <Folder size={20} />, tone: TONES.indigo },
+    { key: "someday", name: "Someday / Maybe", hint: "Ideas worth keeping, not doing yet.", href: "/gtd/someday", icon: <QuestionCircle size={20} />, tone: TONES.rose },
+    { key: "reference", name: "Reference", hint: "Information to keep and find later.", href: "/gtd/reference", icon: <BookOpen size={20} />, tone: TONES.purple },
 ];
 
 /* ---------- Today item helpers ---------- */

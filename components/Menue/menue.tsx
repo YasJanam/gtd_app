@@ -182,7 +182,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 
       <MenueButton
       show={menuePage===0}
-      onClick={() => router.push('/home')}
+      onClick={() => router.push('/gtd/home')}
       icon={<Home size={20} />}
       label="Home"
       />
@@ -192,7 +192,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
       <MenueButton
 
         show={menuePage===0}
-        onClick={() => router.push('/inbox')}
+        onClick={() => router.push('/gtd/inbox')}
         icon={<Inbox size={20} />}
         label="Inbox"
       />
@@ -216,7 +216,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
       <MenueButton
       show={menuePage===0 }
 
-        onClick={() => router.push('/projects')}
+        onClick={() => router.push('/gtd/projects')}
         icon={<Folder size={20} />}
         label="Projects"
       />
@@ -228,28 +228,28 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
         <MenueButton
           show={menuePage===1}
 
-          onClick={() => router.push('/next-actions')}
+          onClick={() => router.push('/gtd/next-actions')}
           icon={<Play size={20} />}
           label="Next"
         />
 
         <MenueButton
           show={menuePage===1}
-          onClick={() => router.push('/calendar-items')}
+          onClick={() => router.push('/gtd/calendar-items')}
           icon={<CalendarWeek size={20} />}
           label="Calendar"
         />
 
         <MenueButton
           show={menuePage===1}
-          onClick={() => router.push('/reference')}
+          onClick={() => router.push('/gtd/reference')}
           icon={<Book size={20} />}
           label="Reference"
         />
 
         <MenueButton
           show={menuePage===2}
-          onClick={() => router.push('/someday-items')}
+          onClick={() => router.push('/gtd/someday-items')}
           icon={<Clock size={20} />}
           label="Someday / Maybe"
         />
@@ -257,7 +257,7 @@ const Menue = ({children}:{children?:React.ReactNode}) => {
 
         <MenueButton
           show={menuePage===2}
-          onClick={() => router.push('/waiting-for')}
+          onClick={() => router.push('/gtd/waiting-for')}
           icon={<UserCircle size={20} />}
           label="Waiting For"
         />
