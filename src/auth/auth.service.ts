@@ -58,6 +58,8 @@ export class AuthService {
             last_name: dto.last_name,
         });
 
+        console.log(createdUser);
+
         return {username:dto.username , uid:(createdUser as any)._id}
     }
 }
