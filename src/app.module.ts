@@ -20,7 +20,7 @@ import { ZiresefrModule } from './ziresefr-app/ziresefr.module';
       isGlobal: true, 
       envFilePath: '.env',
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/gtd-planning-v1-db1'),
+    MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
     AuthModule,
     UsersModule,
     AiModule,   // ai-app
