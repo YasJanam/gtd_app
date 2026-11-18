@@ -43,6 +43,7 @@ export class AuthService {
     }
 
     async registerFromWp(dto:WpRegisterDto) : Promise<{username:string,uid:string}> {
+        console.log('register user from wp : start')
         const user = await this.userService.findByEmail(dto.username);
         if(user) {
             throw new BadRequestException('user already exist')
